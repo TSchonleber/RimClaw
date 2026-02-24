@@ -9,5 +9,6 @@
   "trigger_alerts": ["food_low", "medicine_low", "hostiles_present", "mood_critical"],
   "trigger_delta_keys": ["alerts", "threats", "jobs"],
   "prompt_system_path": "prompts/system.txt",
-  "prompt_user_path": "prompts/user.txt"
+  "prompt_user_path": "prompts/user.txt",
+  "use_delta": true
 }

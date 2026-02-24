@@ -15,6 +15,7 @@ CONFIG = {
     "trigger_delta_keys": ["alerts", "threats", "jobs"],
     "prompt_system_path": "prompts/system.txt",
     "prompt_user_path": "prompts/user.txt",
+    "use_delta": true,
 }
 
 SCHEMA_ACTIONS = set()
@@ -58,8 +59,15 @@ def load_schema():
         SCHEMA_ACTIONS = set()
 
 
-def poll_state():
-    return requests.get(f"{CONFIG['base_url']}/state", timeout=10).json()
+def poll_state(last_tick):
+    if CONFIG.get("use_delta"):
+        resp = requests.get(f"{CONFIG['base_url']}/delta", params={"since": last_tick}, timeout=10).json()
+        tick = resp.get("tick", last_tick)
+        delta = resp.get("delta") or {}
+        if delta == {}:
+            return None, tick
+        return delta, tick
+    return requests.get(f"{CONFIG['base_url']}/state", timeout=10).json(), last_tick
 
 
 def validate_actions(actions):
@@ -148,10 +156,14 @@ def main():
     load_prompts()
     load_schema()
     last_state = None
+    last_tick = 0
     last_action_response = None
     while True:
         try:
-            state = poll_state()
+            state, last_tick = poll_state(last_tick)
+            if state is None:
+                time.sleep(CONFIG["poll_interval"])
+                continue
             delta = diff_state(last_state, state)
             print("delta", json.dumps(delta)[:400])
             last_state = state

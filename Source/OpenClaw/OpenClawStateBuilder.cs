@@ -8,12 +8,19 @@ namespace OpenClaw
 {
     public static class OpenClawStateBuilder
     {
+        private static int _version = 0;
+        private static int _lastTick = 0;
+        private static string _lastStateJson = "{}";
+
         public static string Build()
         {
             var sb = new StringBuilder();
             var map = Find.CurrentMap;
+            var tick = Find.TickManager.TicksGame;
+            _version += 1;
             sb.Append("{");
-            sb.Append("\"tick\":").Append(Find.TickManager.TicksGame).Append(',');
+            sb.Append("\"tick\":").Append(tick).Append(',');
+            sb.Append("\"version\":").Append(_version).Append(',');
 
             // Summary placeholder (can be improved later)
             var colonists = map?.mapPawns?.FreeColonistsCount ?? 0;
@@ -58,8 +65,29 @@ namespace OpenClaw
                       .Append("\"name\":\"").Append(pawn.Name?.ToStringShort ?? pawn.LabelShortCap).Append("\",")
                       .Append("\"mood\":").Append(mood.ToString("0.00")).Append(',')
                       .Append("\"health\":").Append(health.ToString("0.00")).Append(',')
-                      .Append("\"work\":\"").Append(GetPrimaryWorkType(pawn)).Append("\"")
-                      .Append("}");
+                      .Append("\"work\":\"").Append(GetPrimaryWorkType(pawn)).Append("\",")
+                      .Append("\"needs\":{")
+                      .Append("\"food\":").Append(GetNeed(pawn, "Food").ToString("0.00")).Append(',')
+                      .Append("\"rest\":").Append(GetNeed(pawn, "Rest").ToString("0.00")).Append(',')
+                      .Append("\"joy\":").Append(GetNeed(pawn, "Joy").ToString("0.00")).Append('}')
+                      .Append(',')
+                      .Append("\"inventory\":[");
+
+                    var inventory = pawn.inventory?.innerContainer;
+                    if (inventory != null)
+                    {
+                        var items = inventory.ToList();
+                        for (int j = 0; j < items.Count; j++)
+                        {
+                            var item = items[j];
+                            sb.Append("{")
+                              .Append("\"name\":\"").Append(item.def?.defName ?? item.LabelShortCap).Append("\",")
+                              .Append("\"count\":").Append(item.stackCount)
+                              .Append("}");
+                            if (j < items.Count - 1) sb.Append(',');
+                        }
+                    }
+                    sb.Append("]}");
                     if (i < pawns.Count - 1) sb.Append(',');
                 }
             }
@@ -71,8 +99,21 @@ namespace OpenClaw
             {
                 int food = CountThings(map, ThingCategoryDefOf.Foods);
                 int medicine = CountThings(map, ThingDefOf.MedicineIndustrial);
+                int steel = CountThings(map, ThingDefOf.Steel);
+                int wood = CountThings(map, ThingDefOf.WoodLog);
+                int silver = CountThings(map, ThingDefOf.Silver);
+                int components = CountThings(map, ThingDefOf.ComponentIndustrial);
+                int meals = CountThings(map, ThingDefOf.MealSimple)
+                            + CountThings(map, ThingDefOf.MealFine)
+                            + CountThings(map, ThingDefOf.MealLavish)
+                            + CountThings(map, ThingDefOf.MealSurvivalPack);
                 sb.Append("\"food\":").Append(food).Append(',')
-                  .Append("\"medicine\":").Append(medicine);
+                  .Append("\"medicine\":").Append(medicine).Append(',')
+                  .Append("\"steel\":").Append(steel).Append(',')
+                  .Append("\"wood\":").Append(wood).Append(',')
+                  .Append("\"silver\":").Append(silver).Append(',')
+                  .Append("\"components\":").Append(components).Append(',')
+                  .Append("\"meals\":").Append(meals);
             }
             sb.Append("}");
 
@@ -120,7 +161,19 @@ namespace OpenClaw
             }
 
             sb.Append("}");
-            return sb.ToString();
+            _lastTick = tick;
+            _lastStateJson = sb.ToString();
+            return _lastStateJson;
+        }
+
+        public static string BuildDelta(int sinceTick)
+        {
+            var current = Build();
+            if (sinceTick >= _lastTick)
+            {
+                return "{\"tick\":" + _lastTick + ",\"delta\":{}}";
+            }
+            return "{\"tick\":" + _lastTick + ",\"delta\":" + current + "}";
         }
 
         private static string GetPrimaryWorkType(Pawn pawn)
@@ -164,6 +217,12 @@ namespace OpenClaw
                 }
             }
             return count;
+        }
+
+        private static float GetNeed(Pawn pawn, string needDefName)
+        {
+            var need = pawn?.needs?.AllNeeds?.FirstOrDefault(n => n.def?.defName == needDefName);
+            return need?.CurLevel ?? 0f;
         }
     }
 }

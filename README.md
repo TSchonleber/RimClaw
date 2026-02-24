@@ -3,7 +3,7 @@
 RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. It exposes the colony as a local API and lets OpenClaw issue validated commands (priorities, build orders, draft/undraft, zones, etc.).
 
 ## What this repo contains
-- **RimWorld mod** (C#) with local HTTP server (`/state`, `/actions`, `/schema`)
+- **RimWorld mod** (C#) with local HTTP server (`/state`, `/delta`, `/actions`, `/schema`)
 - **OpenClaw bridge stub** (Python) for polling state + sending actions
 - **Action schema + validator** (safe, bounded execution)
 - **Terminal UI** (in‑game log of actions)
@@ -46,7 +46,7 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 We’ll ship full setup instructions once the mod compiles into `Assemblies/OpenClaw.dll`.
 
 ## Bridge config (draft)
-Copy `bridge/config.sample.json` to `bridge/config.json` (or set `RIMCLAW_CONFIG`) to override defaults, including action allowlist.
+Copy `bridge/config.sample.json` to `bridge/config.json` (or set `RIMCLAW_CONFIG`) to override defaults, including action allowlist and delta polling (`use_delta`).
 
 ## License
 TBD

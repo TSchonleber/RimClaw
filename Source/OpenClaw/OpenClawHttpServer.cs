@@ -50,6 +50,14 @@ namespace OpenClaw
                 RespondJson(context, payload);
                 return;
             }
+            if (path == "/delta")
+            {
+                var since = 0;
+                int.TryParse(context.Request.QueryString["since"], out since);
+                var payload = OpenClawStateBuilder.BuildDelta(since);
+                RespondJson(context, payload);
+                return;
+            }
             if (path == "/schema")
             {
                 RespondJson(context, OpenClawSchema.Schema);
