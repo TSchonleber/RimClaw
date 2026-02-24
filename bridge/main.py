@@ -26,16 +26,32 @@ def diff_state(prev, curr):
     return delta
 
 
+def should_trigger(state):
+    alerts = state.get("alerts") or []
+    return any(a in ["food_low", "medicine_low", "hostiles_present"] for a in alerts)
+
+
 def main():
     last_state = None
+    last_action_response = None
     while True:
         try:
             state = poll_state()
             delta = diff_state(last_state, state)
             print("delta", json.dumps(delta)[:400])
             last_state = state
+
+            if should_trigger(state):
+                payload = {
+                    "summary": state.get("summary"),
+                    "alerts": state.get("alerts"),
+                    "delta": delta,
+                    "last_response": last_action_response,
+                }
+                print("trigger", json.dumps(payload)[:400])
+
             # TODO: build prompt + call model
-            send_actions([])
+            last_action_response = send_actions([])
         except Exception as exc:
             print("bridge error", exc)
         time.sleep(CONFIG["poll_interval"])
