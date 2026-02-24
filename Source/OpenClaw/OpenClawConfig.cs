@@ -9,6 +9,7 @@ namespace OpenClaw
         public int MaxActionsPerTick = 5;
         public int DefaultCooldownTicks = 60;
         public List<string> ActionAllowlist = new List<string>();
+        public string ActionAllowlistCsv = "";
 
         public override void ExposeData()
         {
@@ -16,6 +17,7 @@ namespace OpenClaw
             Scribe_Values.Look(ref MaxActionsPerTick, "MaxActionsPerTick", 5);
             Scribe_Values.Look(ref DefaultCooldownTicks, "DefaultCooldownTicks", 60);
             Scribe_Collections.Look(ref ActionAllowlist, "ActionAllowlist", LookMode.Value);
+            Scribe_Values.Look(ref ActionAllowlistCsv, "ActionAllowlistCsv", "");
         }
     }
 }

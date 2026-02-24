@@ -18,7 +18,7 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 - ✅ Terminal UI panel (auto‑opens on terminal spawn)
 - ✅ Action rate limiting + cooldowns
 - ✅ Destructive action gate (off by default)
-- ⏳ Allowlists + config file (next)
+- ✅ Allowlists + config settings
 
 ## Roadmap (high‑level)
 1. **Foundations** — API + state snapshot + terminal

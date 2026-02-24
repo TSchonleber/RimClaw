@@ -13,3 +13,4 @@
 
 - `ActionAllowlist` (default: empty = allow all)
   - If set, only listed actions are permitted.
+- Settings UI: "Action allowlist" supports comma or newline separated actions.
