@@ -109,6 +109,18 @@ namespace OpenClaw
                     {
                         AttackTarget(item);
                     }
+                    else if (item.action == "attack_ranged")
+                    {
+                        AttackRanged(item);
+                    }
+                    else if (item.action == "flee")
+                    {
+                        Flee(item);
+                    }
+                    else if (item.action == "hold_position")
+                    {
+                        HoldPosition(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -277,6 +289,40 @@ namespace OpenClaw
             if (targetPawn == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
             pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn));
+        }
+
+        private static void AttackRanged(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
+            if (targetPawn == null) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, targetPawn));
+        }
+
+        private static void Flee(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
+            if (targetPawn == null) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Flee, targetPawn));
+        }
+
+        private static void HoldPosition(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Wait_Combat, pawn.Position));
         }
 
         private static Bill FindBill(ActionItem item)

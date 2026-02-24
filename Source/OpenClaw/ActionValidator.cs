@@ -110,6 +110,23 @@ namespace OpenClaw
                 if (string.IsNullOrWhiteSpace(item.target)) errors.Add("target missing");
             }
 
+            if (item.action == "attack_ranged")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+                if (string.IsNullOrWhiteSpace(item.target)) errors.Add("target missing");
+            }
+
+            if (item.action == "flee")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+                if (string.IsNullOrWhiteSpace(item.target)) errors.Add("target missing");
+            }
+
+            if (item.action == "hold_position")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+            }
+
             return errors;
         }
     }
