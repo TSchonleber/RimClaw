@@ -62,7 +62,7 @@ namespace OpenClaw
                 }
 
                 Log.Message($"[OpenClaw] Action received: {item.action}");
-                OpenClawTerminalState.LastLog += $"\n{item.action} -> {item.pawn ?? item.thing}";
+                OpenClawTerminalState.Add($"{item.action} -> {item.pawn ?? item.thing}");
                 try
                 {
                     if (item.action == "set_priority")
