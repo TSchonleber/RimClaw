@@ -85,6 +85,12 @@ namespace OpenClaw
                 if (item.min_skill < 0 || item.max_skill < 0) errors.Add("skill range invalid");
             }
 
+            if (item.action == "set_schedule")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+                if (string.IsNullOrWhiteSpace(item.schedule)) errors.Add("schedule missing");
+            }
+
             return errors;
         }
     }

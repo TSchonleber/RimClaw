@@ -93,6 +93,10 @@ namespace OpenClaw
                     {
                         SetBillSkillRange(item);
                     }
+                    else if (item.action == "set_schedule")
+                    {
+                        SetSchedule(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -202,6 +206,26 @@ namespace OpenClaw
             var bill = FindBill(item);
             if (bill == null) return;
             bill.allowedSkillRange = new FloatRange(item.min_skill, item.max_skill);
+        }
+
+        private static void SetSchedule(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn?.timetable == null) return;
+            var parts = item.schedule.Split(',');
+            if (parts.Length != 24) return;
+            for (int hour = 0; hour < 24; hour++)
+            {
+                var label = parts[hour].Trim().ToLower();
+                var assignment = TimeAssignmentDefOf.Anything;
+                if (label == "work") assignment = TimeAssignmentDefOf.Work;
+                else if (label == "sleep") assignment = TimeAssignmentDefOf.Sleep;
+                else if (label == "joy") assignment = TimeAssignmentDefOf.Joy;
+                else if (label == "meditate") assignment = TimeAssignmentDefOf.Meditate;
+                pawn.timetable.SetAssignment(hour, assignment);
+            }
         }
 
         private static Bill FindBill(ActionItem item)

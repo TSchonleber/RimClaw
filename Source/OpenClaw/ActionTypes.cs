@@ -24,6 +24,7 @@ namespace OpenClaw
         public int target;
         public int min_skill;
         public int max_skill;
+        public string schedule;
     }
 
     public class ActionResult
