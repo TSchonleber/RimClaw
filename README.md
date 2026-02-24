@@ -43,7 +43,7 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
   - Installer, docs, versioning
 
 ## Installation (draft)
-We’ll ship full setup instructions once the mod compiles into `Assemblies/OpenClaw.dll`.
+See `docs/install.md` for build + setup steps.
 
 ## Bridge config (draft)
 Copy `bridge/config.sample.json` to `bridge/config.json` (or set `RIMCLAW_CONFIG`) to override defaults, including action allowlist and delta polling (`use_delta`).
