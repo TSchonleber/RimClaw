@@ -31,6 +31,17 @@ def should_trigger(state):
     return any(a in ["food_low", "medicine_low", "hostiles_present", "mood_critical"] for a in alerts)
 
 
+def pack_prompt(state, delta, last_response):
+    return {
+        "summary": state.get("summary"),
+        "alerts": state.get("alerts"),
+        "threats": state.get("threats"),
+        "jobs": state.get("jobs"),
+        "delta": delta,
+        "last_response": last_response,
+    }
+
+
 def main():
     last_state = None
     last_action_response = None
@@ -42,12 +53,7 @@ def main():
             last_state = state
 
             if should_trigger(state):
-                payload = {
-                    "summary": state.get("summary"),
-                    "alerts": state.get("alerts"),
-                    "delta": delta,
-                    "last_response": last_action_response,
-                }
+                payload = pack_prompt(state, delta, last_action_response)
                 print("trigger", json.dumps(payload)[:400])
 
             # TODO: build prompt + call model
