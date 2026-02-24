@@ -18,7 +18,7 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 - ✅ Terminal UI panel (auto‑opens on terminal spawn)
 - ✅ Action rate limiting + cooldowns
 - ✅ Destructive action gate (off by default)
-- ✅ Allowlists + config settings
+- ✅ Allowlists + config settings (UI + external JSON)
 
 ## Roadmap (high‑level)
 1. **Foundations** — API + state snapshot + terminal
@@ -30,6 +30,9 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 
 ## Installation (draft)
 We’ll ship full setup instructions once the mod compiles into `Assemblies/OpenClaw.dll`.
+
+## Bridge config (draft)
+Copy `bridge/config.sample.json` to `bridge/config.json` (or set `RIMCLAW_CONFIG`) to override defaults, including action allowlist.
 
 ## License
 TBD

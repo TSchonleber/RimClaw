@@ -1,4 +1,5 @@
 import json
+import os
 import time
 import requests
 
@@ -8,14 +9,56 @@ CONFIG = {
     "model_provider": "ollama",
     "model_name": "llama3.1:8b",
     "ollama_url": "http://127.0.0.1:11434",
+    "action_allowlist": [],
 }
+
+SCHEMA_ACTIONS = set()
+
+
+def load_config():
+    config_path = os.environ.get(
+        "RIMCLAW_CONFIG",
+        os.path.join(os.path.dirname(__file__), "config.json"),
+    )
+    if not os.path.exists(config_path):
+        return
+    with open(config_path, "r") as handle:
+        data = json.load(handle)
+    CONFIG.update(data)
+
+
+def load_schema():
+    global SCHEMA_ACTIONS
+    try:
+        schema = requests.get(f"{CONFIG['base_url']}/schema", timeout=10).json()
+        actions = schema.get("actions") or []
+        SCHEMA_ACTIONS = {a.get("action") for a in actions if a.get("action")}
+    except Exception as exc:
+        print("schema load error", exc)
+        SCHEMA_ACTIONS = set()
 
 
 def poll_state():
     return requests.get(f"{CONFIG['base_url']}/state", timeout=10).json()
 
 
+def validate_actions(actions):
+    allowed = set(CONFIG.get("action_allowlist") or [])
+    validated = []
+    for action in actions:
+        action_type = action.get("action") or action.get("type")
+        if action_type is None:
+            continue
+        if SCHEMA_ACTIONS and action_type not in SCHEMA_ACTIONS:
+            continue
+        if allowed and action_type not in allowed:
+            continue
+        validated.append(action)
+    return validated
+
+
 def send_actions(actions):
+    actions = validate_actions(actions)
     return requests.post(f"{CONFIG['base_url']}/actions", json={"actions": actions}, timeout=10).json()
 
 
@@ -67,6 +110,8 @@ def parse_actions(text):
 
 
 def main():
+    load_config()
+    load_schema()
     last_state = None
     last_action_response = None
     while True:

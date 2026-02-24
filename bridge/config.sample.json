@@ -1,0 +1,8 @@
+{
+  "base_url": "http://127.0.0.1:3456",
+  "poll_interval": 60,
+  "model_provider": "ollama",
+  "model_name": "llama3.1:8b",
+  "ollama_url": "http://127.0.0.1:11434",
+  "action_allowlist": ["set_priority", "queue_build"]
+}

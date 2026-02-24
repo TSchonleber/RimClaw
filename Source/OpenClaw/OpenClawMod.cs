@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using Verse;
@@ -9,6 +10,15 @@ namespace OpenClaw
     public class OpenClawMod : Mod
     {
         public static OpenClawConfig Config;
+
+        [Serializable]
+        private class ExternalConfig
+        {
+            public bool AllowDestructive = false;
+            public int MaxActionsPerTick = 5;
+            public int DefaultCooldownTicks = 60;
+            public List<string> ActionAllowlist = new List<string>();
+        }
 
         public OpenClawMod(ModContentPack content) : base(content)
         {
@@ -37,6 +47,19 @@ namespace OpenClaw
 
         private static void ApplyConfig()
         {
+            var fileConfig = LoadExternalConfig();
+            if (fileConfig != null)
+            {
+                Config.AllowDestructive = fileConfig.AllowDestructive;
+                if (fileConfig.MaxActionsPerTick > 0) Config.MaxActionsPerTick = fileConfig.MaxActionsPerTick;
+                if (fileConfig.DefaultCooldownTicks >= 0) Config.DefaultCooldownTicks = fileConfig.DefaultCooldownTicks;
+                if (fileConfig.ActionAllowlist != null)
+                {
+                    Config.ActionAllowlist = fileConfig.ActionAllowlist;
+                    Config.ActionAllowlistCsv = string.Join(", ", fileConfig.ActionAllowlist);
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(Config.ActionAllowlistCsv) && Config.ActionAllowlist != null && Config.ActionAllowlist.Count > 0)
             {
                 Config.ActionAllowlistCsv = string.Join(", ", Config.ActionAllowlist);
@@ -49,6 +72,22 @@ namespace OpenClaw
             ActionLimiter.MaxActionsPerTick = Config.MaxActionsPerTick;
             ActionPolicy.SetCooldown(Config.DefaultCooldownTicks);
             ActionPolicy.SetAllowlist(allowlist);
+        }
+
+        private static ExternalConfig LoadExternalConfig()
+        {
+            try
+            {
+                var path = Path.Combine(GenFilePaths.ConfigFolderPath, "OpenClaw.json");
+                if (!File.Exists(path)) return null;
+                var json = File.ReadAllText(path);
+                return JsonUtility.FromJson<ExternalConfig>(json);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[OpenClaw] Failed to load OpenClaw.json: {ex}");
+                return null;
+            }
         }
 
         private static List<string> ParseAllowlist(string input)
