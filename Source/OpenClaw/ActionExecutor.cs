@@ -53,6 +53,14 @@ namespace OpenClaw
                     continue;
                 }
 
+                var key = $"{item.action}:{item.pawn ?? item.thing ?? item.target}";
+                if (!ActionPolicy.AllowAction(key, out var policyError))
+                {
+                    result.status = "error";
+                    result.errors.Add(policyError);
+                    continue;
+                }
+
                 Log.Message($"[OpenClaw] Action received: {item.action}");
                 OpenClawTerminalState.LastLog += $"\n{item.action} -> {item.pawn ?? item.thing}";
                 try
