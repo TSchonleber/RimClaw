@@ -16,14 +16,17 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 - ✅ Schedules: set timetable
 - ✅ Combat: move, attack (melee/ranged/pos/thing), flee/retreat, group orders
 - ✅ Terminal UI panel (auto‑opens on terminal spawn)
-- ⏳ Full action validator + safety caps (next)
+- ✅ Action rate limiting + cooldowns
+- ✅ Destructive action gate (off by default)
+- ⏳ Allowlists + config file (next)
 
 ## Roadmap (high‑level)
 1. **Foundations** — API + state snapshot + terminal
 2. **Controlled actions** — priority + build orders + draft/zone
 3. **Full control** — bills, scheduling, combat
-4. **Intelligence** — memory, delta prompts, local model default
-5. **Public release** — installer + docs
+4. **Safety** — rate limits, cooldowns, destructive gates, allowlists
+5. **Intelligence** — memory, delta prompts, local model default
+6. **Public release** — installer + docs
 
 ## Installation (draft)
 We’ll ship full setup instructions once the mod compiles into `Assemblies/OpenClaw.dll`.
