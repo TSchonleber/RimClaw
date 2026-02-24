@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>OpenClawTerminal</defName>
+    <label>OpenClaw terminal</label>
+    <description>Interface for the OpenClaw AI controller.</description>
+    <thingClass>OpenClaw.Terminal.Building_OpenClawTerminal</thingClass>
+    <uiIconPath>Textures/TerminalIcon</uiIconPath>
+    <size>(2,2)</size>
+    <costList>
+      <Steel>40</Steel>
+      <ComponentIndustrial>2</ComponentIndustrial>
+    </costList>
+    <comps>
+      <li Class="CompProperties_Power">
+        <basePowerConsumption>150</basePowerConsumption>
+      </li>
+    </comps>
+  </ThingDef>
+</Defs>

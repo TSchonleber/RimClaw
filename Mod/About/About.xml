@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>OpenClaw RimWorld Integration</name>
+  <author>OpenClaw</author>
+  <packageId>openclaw.rimworld</packageId>
+  <supportedVersions>
+    <li>1.5</li>
+    <li>1.4</li>
+  </supportedVersions>
+  <description>Connect RimWorld to OpenClaw via a local HTTP bridge.</description>
+</ModMetaData>

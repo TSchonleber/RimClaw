@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ModSettings DefName="OpenClawSettings">
+    <port>3456</port>
+  </ModSettings>
+</Defs>
