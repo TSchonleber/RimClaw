@@ -11,9 +11,11 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 ## Current status
 - ✅ State snapshot: pawns + basic resources
 - ✅ Action schema + validation scaffold
-- ✅ Action execution: priorities, build orders, draft/undraft, zones
+- ✅ Actions: priorities, build orders, draft/undraft, zones
+- ✅ Bills: create, repeat/pause/target, skill range, ingredient filters
+- ✅ Schedules: set timetable
+- ✅ Combat: move, attack (melee/ranged/pos/thing), flee/retreat, group orders
 - ✅ Terminal UI panel (auto‑opens on terminal spawn)
-- ⏳ Bills, schedules, combat behaviors (next)
 - ⏳ Full action validator + safety caps (next)
 
 ## Roadmap (high‑level)
