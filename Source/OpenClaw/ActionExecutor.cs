@@ -69,6 +69,14 @@ namespace OpenClaw
                     {
                         SetZone(item);
                     }
+                    else if (item.action == "create_bill")
+                    {
+                        CreateBill(item);
+                    }
+                    else if (item.action == "set_bill_count")
+                    {
+                        SetBillCount(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -120,6 +128,41 @@ namespace OpenClaw
             var zone = map.zoneManager.AllZones.FirstOrDefault(z => z.label == item.zone);
             if (zone == null) return;
             pawn.playerSettings.AreaRestriction = zone as Area;
+        }
+
+        private static void CreateBill(ActionItem item)
+        {
+            var table = FindTable(item.table);
+            if (table == null) return;
+            var recipe = DefDatabase<RecipeDef>.AllDefs.FirstOrDefault(r => r.defName == item.recipe || r.label == item.recipe);
+            if (recipe == null) return;
+            var bill = recipe.MakeNewBill();
+            table.BillStack.AddBill(bill);
+        }
+
+        private static void SetBillCount(ActionItem item)
+        {
+            var table = FindTable(item.table);
+            if (table == null) return;
+            var recipe = DefDatabase<RecipeDef>.AllDefs.FirstOrDefault(r => r.defName == item.recipe || r.label == item.recipe);
+            if (recipe == null) return;
+            foreach (var bill in table.BillStack)
+            {
+                if (bill.recipe == recipe)
+                {
+                    bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
+                    bill.repeatCount = item.count;
+                    return;
+                }
+            }
+        }
+
+        private static Building_WorkTable FindTable(string table)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || string.IsNullOrWhiteSpace(table)) return null;
+            return map.listerBuildings.AllBuildingsColonistOfClass<Building_WorkTable>()
+                .FirstOrDefault(b => b.def.defName == table || b.LabelShortCap == table || b.def.label == table);
         }
 
         private static string Serialize(ActionResult result)

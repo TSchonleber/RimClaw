@@ -16,6 +16,9 @@ namespace OpenClaw
         public int[] pos;
         public string thing;
         public string zone;
+        public string table;
+        public string recipe;
+        public int count;
     }
 
     public class ActionResult

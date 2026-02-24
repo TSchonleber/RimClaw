@@ -45,6 +45,19 @@ namespace OpenClaw
                 if (string.IsNullOrWhiteSpace(item.zone)) errors.Add("zone missing");
             }
 
+            if (item.action == "create_bill")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+            }
+
+            if (item.action == "set_bill_count")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+                if (item.count < 0) errors.Add("count invalid");
+            }
+
             return errors;
         }
     }
