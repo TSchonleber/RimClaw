@@ -15,6 +15,7 @@ namespace OpenClaw
         public int level;
         public int[] pos;
         public string thing;
+        public string zone;
     }
 
     public class ActionResult

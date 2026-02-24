@@ -34,6 +34,17 @@ namespace OpenClaw
                 if (item.pos == null || item.pos.Length < 3) errors.Add("pos missing");
             }
 
+            if (item.action == "draft" || item.action == "undraft")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+            }
+
+            if (item.action == "set_zone")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+                if (string.IsNullOrWhiteSpace(item.zone)) errors.Add("zone missing");
+            }
+
             return errors;
         }
     }

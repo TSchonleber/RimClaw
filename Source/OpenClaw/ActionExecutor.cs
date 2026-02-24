@@ -57,6 +57,18 @@ namespace OpenClaw
                     {
                         QueueBuild(item);
                     }
+                    else if (item.action == "draft")
+                    {
+                        SetDraft(item, true);
+                    }
+                    else if (item.action == "undraft")
+                    {
+                        SetDraft(item, false);
+                    }
+                    else if (item.action == "set_zone")
+                    {
+                        SetZone(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -88,6 +100,26 @@ namespace OpenClaw
             var cell = new IntVec3(item.pos[0], item.pos[1], item.pos[2]);
             if (!cell.InBounds(map)) return;
             GenConstruct.PlaceBlueprintForBuild(thingDef, cell, map, Rot4.North, Faction.OfPlayer, null);
+        }
+
+        private static void SetDraft(ActionItem item, bool drafted)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn?.drafter == null) return;
+            pawn.drafter.Drafted = drafted;
+        }
+
+        private static void SetZone(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null || string.IsNullOrWhiteSpace(item.zone)) return;
+            var zone = map.zoneManager.AllZones.FirstOrDefault(z => z.label == item.zone);
+            if (zone == null) return;
+            pawn.playerSettings.AreaRestriction = zone as Area;
         }
 
         private static string Serialize(ActionResult result)
