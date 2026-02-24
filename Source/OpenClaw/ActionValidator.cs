@@ -91,6 +91,13 @@ namespace OpenClaw
                 if (string.IsNullOrWhiteSpace(item.schedule)) errors.Add("schedule missing");
             }
 
+            if (item.action == "set_bill_ingredients")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+                if (item.ingredients == null || item.ingredients.Length == 0) errors.Add("ingredients missing");
+            }
+
             return errors;
         }
     }

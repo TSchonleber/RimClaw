@@ -97,6 +97,10 @@ namespace OpenClaw
                     {
                         SetSchedule(item);
                     }
+                    else if (item.action == "set_bill_ingredients")
+                    {
+                        SetBillIngredients(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -225,6 +229,21 @@ namespace OpenClaw
                 else if (label == "joy") assignment = TimeAssignmentDefOf.Joy;
                 else if (label == "meditate") assignment = TimeAssignmentDefOf.Meditate;
                 pawn.timetable.SetAssignment(hour, assignment);
+            }
+        }
+
+        private static void SetBillIngredients(ActionItem item)
+        {
+            var bill = FindBill(item);
+            if (bill == null || item.ingredients == null) return;
+            bill.ingredientFilter.SetDisallowAll();
+            foreach (var name in item.ingredients)
+            {
+                var def = DefDatabase<ThingDef>.AllDefs.FirstOrDefault(t => t.defName == name || t.label == name);
+                if (def != null)
+                {
+                    bill.ingredientFilter.SetAllow(def, true);
+                }
             }
         }
 
