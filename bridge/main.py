@@ -5,6 +5,9 @@ import requests
 CONFIG = {
     "base_url": "http://127.0.0.1:3456",
     "poll_interval": 60,
+    "model_provider": "ollama",
+    "model_name": "llama3.1:8b",
+    "ollama_url": "http://127.0.0.1:11434",
 }
 
 
@@ -42,6 +45,27 @@ def pack_prompt(state, delta, last_response):
     }
 
 
+def call_model(payload):
+    if CONFIG.get("model_provider") == "ollama":
+        prompt = json.dumps(payload)
+        resp = requests.post(
+            f"{CONFIG['ollama_url']}/api/generate",
+            json={"model": CONFIG["model_name"], "prompt": prompt, "stream": False},
+            timeout=60,
+        )
+        data = resp.json()
+        return data.get("response", "{}").strip()
+    return "{}"
+
+
+def parse_actions(text):
+    try:
+        obj = json.loads(text)
+        return obj.get("actions", [])
+    except Exception:
+        return []
+
+
 def main():
     last_state = None
     last_action_response = None
@@ -52,12 +76,14 @@ def main():
             print("delta", json.dumps(delta)[:400])
             last_state = state
 
+            actions = []
             if should_trigger(state):
                 payload = pack_prompt(state, delta, last_action_response)
                 print("trigger", json.dumps(payload)[:400])
+                model_text = call_model(payload)
+                actions = parse_actions(model_text)
 
-            # TODO: build prompt + call model
-            last_action_response = send_actions([])
+            last_action_response = send_actions(actions)
         except Exception as exc:
             print("bridge error", exc)
         time.sleep(CONFIG["poll_interval"])
