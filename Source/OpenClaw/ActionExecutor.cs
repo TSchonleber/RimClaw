@@ -121,6 +121,14 @@ namespace OpenClaw
                     {
                         HoldPosition(item);
                     }
+                    else if (item.action == "attack_pos")
+                    {
+                        AttackPos(item);
+                    }
+                    else if (item.action == "attack_thing")
+                    {
+                        AttackThing(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -323,6 +331,30 @@ namespace OpenClaw
             if (pawn == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
             pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Wait_Combat, pawn.Position));
+        }
+
+        private static void AttackPos(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || item.target_pos == null || item.target_pos.Length < 3) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
+            if (!cell.InBounds(map)) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, cell));
+        }
+
+        private static void AttackThing(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var thing = map.listerThings.AllThings.FirstOrDefault(t => t.LabelShortCap == item.target || t.def.defName == item.target || t.def.label == item.target);
+            if (thing == null) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, thing));
         }
 
         private static Bill FindBill(ActionItem item)
