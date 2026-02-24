@@ -48,5 +48,8 @@ See `docs/install.md` for build + setup steps.
 ## Bridge config (draft)
 Copy `bridge/config.sample.json` to `bridge/config.json` (or set `RIMCLAW_CONFIG`) to override defaults, including action allowlist and delta polling (`use_delta`).
 
+## Release checklist (draft)
+See `docs/release.md`.
+
 ## License
 TBD
