@@ -4,5 +4,10 @@
   "model_provider": "ollama",
   "model_name": "llama3.1:8b",
   "ollama_url": "http://127.0.0.1:11434",
-  "action_allowlist": ["set_priority", "queue_build"]
+  "action_allowlist": ["set_priority", "queue_build"],
+  "max_actions_per_cycle": 5,
+  "trigger_alerts": ["food_low", "medicine_low", "hostiles_present", "mood_critical"],
+  "trigger_delta_keys": ["alerts", "threats", "jobs"],
+  "prompt_system_path": "prompts/system.txt",
+  "prompt_user_path": "prompts/user.txt"
 }

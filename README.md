@@ -20,13 +20,27 @@ RimClaw is a full‑control integration between **RimWorld** and **OpenClaw**. I
 - ✅ Destructive action gate (off by default)
 - ✅ Allowlists + config settings (UI + external JSON)
 
-## Roadmap (high‑level)
-1. **Foundations** — API + state snapshot + terminal
-2. **Controlled actions** — priority + build orders + draft/zone
-3. **Full control** — bills, scheduling, combat
-4. **Safety** — rate limits, cooldowns, destructive gates, allowlists
-5. **Intelligence** — memory, delta prompts, local model default
-6. **Public release** — installer + docs
+## Roadmap (full)
+- [x] **Phase 0 — Decisions & Architecture**
+  - Full‑control RimWorld mod + OpenClaw bridge
+  - Local model default Llama‑3.1 8B (14B optional)
+  - Event‑driven + 60s polling
+- [x] **Phase 1 — Foundations**
+  - Local HTTP server (`/state`, `/actions`, `/schema`)
+  - State snapshot + in‑game terminal UI
+- [x] **Phase 2 — Controlled Actions**
+  - Priorities, build queue, draft/undraft, zones
+- [x] **Phase 3 — Full Control**
+  - Bills, schedules, combat, group orders
+- [x] **Phase 4 — Safety Layer**
+  - Rate limiting + cooldowns
+  - Destructive action gate
+  - Allowlist (UI + external config)
+- [ ] **Phase 5 — Intelligence**
+  - Delta prompts + policy scaffolding
+  - Model defaults + prompt templates
+- [ ] **Phase 6 — Public Release**
+  - Installer, docs, versioning
 
 ## Installation (draft)
 We’ll ship full setup instructions once the mod compiles into `Assemblies/OpenClaw.dll`.

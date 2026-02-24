@@ -1,0 +1,2 @@
+Given the colony snapshot and delta, propose the minimal actions needed.
+Use only actions listed in schema_actions. Return {"actions": [...]}.

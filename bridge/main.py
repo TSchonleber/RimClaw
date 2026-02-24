@@ -10,9 +10,16 @@ CONFIG = {
     "model_name": "llama3.1:8b",
     "ollama_url": "http://127.0.0.1:11434",
     "action_allowlist": [],
+    "max_actions_per_cycle": 5,
+    "trigger_alerts": ["food_low", "medicine_low", "hostiles_present", "mood_critical"],
+    "trigger_delta_keys": ["alerts", "threats", "jobs"],
+    "prompt_system_path": "prompts/system.txt",
+    "prompt_user_path": "prompts/user.txt",
 }
 
 SCHEMA_ACTIONS = set()
+PROMPT_SYSTEM = ""
+PROMPT_USER = ""
 
 
 def load_config():
@@ -25,6 +32,19 @@ def load_config():
     with open(config_path, "r") as handle:
         data = json.load(handle)
     CONFIG.update(data)
+
+
+def load_prompts():
+    global PROMPT_SYSTEM, PROMPT_USER
+    base_dir = os.path.dirname(__file__)
+    system_path = os.path.join(base_dir, CONFIG.get("prompt_system_path", "prompts/system.txt"))
+    user_path = os.path.join(base_dir, CONFIG.get("prompt_user_path", "prompts/user.txt"))
+    if os.path.exists(system_path):
+        with open(system_path, "r") as handle:
+            PROMPT_SYSTEM = handle.read().strip()
+    if os.path.exists(user_path):
+        with open(user_path, "r") as handle:
+            PROMPT_USER = handle.read().strip()
 
 
 def load_schema():
@@ -72,19 +92,26 @@ def diff_state(prev, curr):
     return delta
 
 
-def should_trigger(state):
+def should_trigger(state, delta):
     alerts = state.get("alerts") or []
-    return any(a in ["food_low", "medicine_low", "hostiles_present", "mood_critical"] for a in alerts)
+    trigger_alerts = set(CONFIG.get("trigger_alerts") or [])
+    if any(a in trigger_alerts for a in alerts):
+        return True
+    trigger_delta_keys = set(CONFIG.get("trigger_delta_keys") or [])
+    return any(k in delta for k in trigger_delta_keys)
 
 
 def pack_prompt(state, delta, last_response):
     return {
+        "system": PROMPT_SYSTEM,
         "summary": state.get("summary"),
         "alerts": state.get("alerts"),
         "threats": state.get("threats"),
         "jobs": state.get("jobs"),
         "delta": delta,
         "last_response": last_response,
+        "instructions": PROMPT_USER,
+        "schema_actions": sorted(SCHEMA_ACTIONS),
     }
 
 
@@ -109,8 +136,16 @@ def parse_actions(text):
         return []
 
 
+def apply_policy(actions):
+    max_actions = CONFIG.get("max_actions_per_cycle", 5)
+    if not actions:
+        return []
+    return actions[:max_actions]
+
+
 def main():
     load_config()
+    load_prompts()
     load_schema()
     last_state = None
     last_action_response = None
@@ -122,11 +157,11 @@ def main():
             last_state = state
 
             actions = []
-            if should_trigger(state):
+            if should_trigger(state, delta):
                 payload = pack_prompt(state, delta, last_action_response)
                 print("trigger", json.dumps(payload)[:400])
                 model_text = call_model(payload)
-                actions = parse_actions(model_text)
+                actions = apply_policy(parse_actions(model_text))
 
             last_action_response = send_actions(actions)
         except Exception as exc:
