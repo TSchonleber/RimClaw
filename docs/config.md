@@ -10,3 +10,6 @@
 
 - `DefaultCooldownTicks` (default: 60)
   - Per-action cooldown window.
+
+- `ActionAllowlist` (default: empty = allow all)
+  - If set, only listed actions are permitted.
