@@ -16,13 +16,25 @@ def send_actions(actions):
     return requests.post(f"{CONFIG['base_url']}/actions", json={"actions": actions}, timeout=10).json()
 
 
+def diff_state(prev, curr):
+    if not prev:
+        return curr
+    delta = {}
+    for key in curr:
+        if prev.get(key) != curr.get(key):
+            delta[key] = curr.get(key)
+    return delta
+
+
 def main():
+    last_state = None
     while True:
         try:
             state = poll_state()
+            delta = diff_state(last_state, state)
+            print("delta", json.dumps(delta)[:400])
+            last_state = state
             # TODO: build prompt + call model
-            print("state", json.dumps(state)[:200])
-            # placeholder no-op
             send_actions([])
         except Exception as exc:
             print("bridge error", exc)

@@ -21,6 +21,24 @@ namespace OpenClaw
               .Append(map?.mapPawns?.FreeColonistsCount ?? 0)
               .Append("\"");
 
+            // Alerts
+            sb.Append(",\"alerts\":[");
+            if (map != null)
+            {
+                var alerts = new List<string>();
+                int food = CountThings(map, ThingCategoryDefOf.Foods);
+                int medicine = CountThings(map, ThingDefOf.MedicineIndustrial);
+                if (food < 50) alerts.Add("food_low");
+                if (medicine < 3) alerts.Add("medicine_low");
+                if (map.mapPawns?.AllPawnsSpawned?.Any(p => p.HostileTo(Faction.OfPlayer)) == true) alerts.Add("hostiles_present");
+                for (int i = 0; i < alerts.Count; i++)
+                {
+                    sb.Append("\"").Append(alerts[i]).Append("\"");
+                    if (i < alerts.Count - 1) sb.Append(',');
+                }
+            }
+            sb.Append("]");
+
             // Pawns
             sb.Append(",\"pawns\":[");
             if (map != null)
@@ -52,6 +70,19 @@ namespace OpenClaw
                   .Append("\"medicine\":").Append(medicine);
             }
             sb.Append("}");
+
+            // Threats (hostile pawns)
+            sb.Append(",\"threats\":[");
+            if (map != null)
+            {
+                var hostiles = map.mapPawns.AllPawnsSpawned.Where(p => p.HostileTo(Faction.OfPlayer)).ToList();
+                for (int i = 0; i < hostiles.Count; i++)
+                {
+                    sb.Append("\"").Append(hostiles[i].LabelShortCap).Append("\"");
+                    if (i < hostiles.Count - 1) sb.Append(',');
+                }
+            }
+            sb.Append("]");
 
             sb.Append("}");
             return sb.ToString();
