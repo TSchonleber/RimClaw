@@ -58,6 +58,19 @@ namespace OpenClaw
                 if (item.count < 0) errors.Add("count invalid");
             }
 
+            if (item.action == "set_bill_pause")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+            }
+
+            if (item.action == "set_bill_repeat_mode")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+                if (string.IsNullOrWhiteSpace(item.repeat_mode)) errors.Add("repeat_mode missing");
+            }
+
             return errors;
         }
     }

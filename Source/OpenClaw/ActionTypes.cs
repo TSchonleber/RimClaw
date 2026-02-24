@@ -19,6 +19,8 @@ namespace OpenClaw
         public string table;
         public string recipe;
         public int count;
+        public bool paused;
+        public string repeat_mode;
     }
 
     public class ActionResult

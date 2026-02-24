@@ -77,6 +77,14 @@ namespace OpenClaw
                     {
                         SetBillCount(item);
                     }
+                    else if (item.action == "set_bill_pause")
+                    {
+                        SetBillPause(item);
+                    }
+                    else if (item.action == "set_bill_repeat_mode")
+                    {
+                        SetBillRepeatMode(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -142,19 +150,51 @@ namespace OpenClaw
 
         private static void SetBillCount(ActionItem item)
         {
+            var bill = FindBill(item);
+            if (bill == null) return;
+            bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
+            bill.repeatCount = item.count;
+        }
+
+        private static void SetBillPause(ActionItem item)
+        {
+            var bill = FindBill(item);
+            if (bill == null) return;
+            bill.suspended = item.paused;
+        }
+
+        private static void SetBillRepeatMode(ActionItem item)
+        {
+            var bill = FindBill(item);
+            if (bill == null) return;
+            if (item.repeat_mode == "forever")
+            {
+                bill.repeatMode = BillRepeatModeDefOf.RepeatForever;
+            }
+            else if (item.repeat_mode == "count")
+            {
+                bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
+            }
+            else if (item.repeat_mode == "target")
+            {
+                bill.repeatMode = BillRepeatModeDefOf.TargetCount;
+            }
+        }
+
+        private static Bill FindBill(ActionItem item)
+        {
             var table = FindTable(item.table);
-            if (table == null) return;
+            if (table == null) return null;
             var recipe = DefDatabase<RecipeDef>.AllDefs.FirstOrDefault(r => r.defName == item.recipe || r.label == item.recipe);
-            if (recipe == null) return;
+            if (recipe == null) return null;
             foreach (var bill in table.BillStack)
             {
                 if (bill.recipe == recipe)
                 {
-                    bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
-                    bill.repeatCount = item.count;
-                    return;
+                    return bill;
                 }
             }
+            return null;
         }
 
         private static Building_WorkTable FindTable(string table)
