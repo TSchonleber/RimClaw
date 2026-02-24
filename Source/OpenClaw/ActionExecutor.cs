@@ -54,7 +54,7 @@ namespace OpenClaw
                 }
 
                 var key = $"{item.action}:{item.pawn ?? item.thing ?? item.target}";
-                if (!ActionPolicy.AllowAction(key, out var policyError))
+                if (!ActionPolicy.AllowAction(item.action, key, out var policyError))
                 {
                     result.status = "error";
                     result.errors.Add(policyError);
