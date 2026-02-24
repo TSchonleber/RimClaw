@@ -10,11 +10,11 @@ namespace OpenClaw
     {
         public static string ApplyActions(string rawJson)
         {
-            var result = new ActionResult { status = "ok", errors = new List<string>() };
+            var result = new ActionResult { status = "ok", errors = new List<ActionError>() };
             if (string.IsNullOrWhiteSpace(rawJson))
             {
                 result.status = "error";
-                result.errors.Add("empty payload");
+                result.errors.Add(new ActionError { index = -1, code = "empty_payload", message = "empty payload" });
                 return Serialize(result);
             }
 
@@ -26,7 +26,7 @@ namespace OpenClaw
             catch
             {
                 result.status = "error";
-                result.errors.Add("invalid json");
+                result.errors.Add(new ActionError { index = -1, code = "invalid_json", message = "invalid json" });
                 return Serialize(result);
             }
 
@@ -35,13 +35,17 @@ namespace OpenClaw
                 return Serialize(result);
             }
 
-            foreach (var item in request.actions)
+            for (int i = 0; i < request.actions.Count; i++)
             {
+                var item = request.actions[i];
                 var errors = ActionValidator.Validate(item);
                 if (errors.Count > 0)
                 {
                     result.status = "error";
-                    result.errors.AddRange(errors);
+                    foreach (var e in errors)
+                    {
+                        result.errors.Add(new ActionError { index = i, code = "validation_error", message = e });
+                    }
                     ActionLimiter.RegisterError();
                     continue;
                 }
@@ -49,7 +53,7 @@ namespace OpenClaw
                 if (!ActionLimiter.AllowAction(out var limitError))
                 {
                     result.status = "error";
-                    result.errors.Add(limitError);
+                    result.errors.Add(new ActionError { index = i, code = "rate_limited", message = limitError });
                     continue;
                 }
 
@@ -57,7 +61,7 @@ namespace OpenClaw
                 if (!ActionPolicy.AllowAction(item.action, key, out var policyError))
                 {
                     result.status = "error";
-                    result.errors.Add(policyError);
+                    result.errors.Add(new ActionError { index = i, code = "policy", message = policyError });
                     continue;
                 }
 
@@ -169,7 +173,7 @@ namespace OpenClaw
                 catch (System.Exception ex)
                 {
                     result.status = "error";
-                    result.errors.Add(ex.Message);
+                    result.errors.Add(new ActionError { index = i, code = "exception", message = ex.Message });
                     ActionLimiter.RegisterError();
                 }
             }
@@ -484,7 +488,10 @@ namespace OpenClaw
                 sb.Append(",\"errors\":[");
                 for (int i = 0; i < result.errors.Count; i++)
                 {
-                    sb.Append("\"").Append(result.errors[i]).Append("\"");
+                    var err = result.errors[i];
+                    sb.Append("{\"index\":").Append(err.index)
+                      .Append(",\"code\":\"").Append(err.code)
+                      .Append("\",\"message\":\"").Append(err.message).Append("\"}");
                     if (i < result.errors.Count - 1) sb.Append(",");
                 }
                 sb.Append("]");

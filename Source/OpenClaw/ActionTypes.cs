@@ -34,6 +34,13 @@ namespace OpenClaw
     public class ActionResult
     {
         public string status;
-        public List<string> errors;
+        public List<ActionError> errors;
+    }
+
+    public class ActionError
+    {
+        public int index;
+        public string code;
+        public string message;
     }
 }
