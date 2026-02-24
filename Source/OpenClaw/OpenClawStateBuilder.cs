@@ -32,6 +32,10 @@ namespace OpenClaw
                 if (food < 50) alertList.Add("food_low");
                 if (medicine < 3) alertList.Add("medicine_low");
                 if (map.mapPawns?.AllPawnsSpawned?.Any(p => p.HostileTo(Faction.OfPlayer)) == true) alertList.Add("hostiles_present");
+
+                // Mood alerts
+                var lowMood = map.mapPawns.FreeColonists.Any(p => (p.needs?.mood?.CurLevel ?? 1f) < 0.25f);
+                if (lowMood) alertList.Add("mood_critical");
             }
             for (int i = 0; i < alertList.Count; i++)
             {
@@ -83,6 +87,20 @@ namespace OpenClaw
                 {
                     sb.Append("\"").Append(hostiles[i].LabelShortCap).Append("\"");
                     if (i < hostiles.Count - 1) sb.Append(',');
+                }
+            }
+            sb.Append("]");
+
+            // Jobs (active)
+            sb.Append(",\"jobs\":[");
+            if (map != null)
+            {
+                var pawns = map.mapPawns.FreeColonists.ToList();
+                for (int i = 0; i < pawns.Count; i++)
+                {
+                    var job = pawns[i].CurJob?.def?.defName ?? "idle";
+                    sb.Append("\"").Append(pawns[i].LabelShortCap).Append(":").Append(job).Append("\"");
+                    if (i < pawns.Count - 1) sb.Append(',');
                 }
             }
             sb.Append("]");

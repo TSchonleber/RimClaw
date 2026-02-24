@@ -28,7 +28,7 @@ def diff_state(prev, curr):
 
 def should_trigger(state):
     alerts = state.get("alerts") or []
-    return any(a in ["food_low", "medicine_low", "hostiles_present"] for a in alerts)
+    return any(a in ["food_low", "medicine_low", "hostiles_present", "mood_critical"] for a in alerts)
 
 
 def main():
