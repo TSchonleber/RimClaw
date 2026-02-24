@@ -10,5 +10,10 @@
   "trigger_delta_keys": ["alerts", "threats", "jobs"],
   "prompt_system_path": "prompts/system.txt",
   "prompt_user_path": "prompts/user.txt",
-  "use_delta": true
+  "use_delta": true,
+  "safe_mode": true,
+  "action_cooldowns": {
+    "set_priority": 10,
+    "queue_build": 10
+  }
 }

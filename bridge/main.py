@@ -16,11 +16,21 @@ CONFIG = {
     "prompt_system_path": "prompts/system.txt",
     "prompt_user_path": "prompts/user.txt",
     "use_delta": true,
+    "safe_mode": true,
+    "action_cooldowns": {},
 }
 
 SCHEMA_ACTIONS = set()
 PROMPT_SYSTEM = ""
 PROMPT_USER = ""
+ACTION_LAST_RUN = {}
+DESTRUCTIVE_ACTIONS = {
+    "attack",
+    "attack_ranged",
+    "attack_pos",
+    "attack_thing",
+    "group_attack",
+}
 
 
 def load_config():
@@ -148,7 +158,29 @@ def apply_policy(actions):
     max_actions = CONFIG.get("max_actions_per_cycle", 5)
     if not actions:
         return []
-    return actions[:max_actions]
+
+    filtered = []
+    safe_mode = CONFIG.get("safe_mode", True)
+    cooldowns = CONFIG.get("action_cooldowns") or {}
+    now = time.time()
+
+    for action in actions:
+        action_type = action.get("action") or action.get("type")
+        if action_type is None:
+            continue
+        if safe_mode and action_type in DESTRUCTIVE_ACTIONS:
+            continue
+        cooldown = cooldowns.get(action_type)
+        if cooldown:
+            last = ACTION_LAST_RUN.get(action_type, 0)
+            if now - last < cooldown:
+                continue
+        filtered.append(action)
+        ACTION_LAST_RUN[action_type] = now
+        if len(filtered) >= max_actions:
+            break
+
+    return filtered
 
 
 def main():
