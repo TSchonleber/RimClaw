@@ -71,6 +71,20 @@ namespace OpenClaw
                 if (string.IsNullOrWhiteSpace(item.repeat_mode)) errors.Add("repeat_mode missing");
             }
 
+            if (item.action == "set_bill_target")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+                if (item.target < 0) errors.Add("target invalid");
+            }
+
+            if (item.action == "set_bill_skill_range")
+            {
+                if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
+                if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
+                if (item.min_skill < 0 || item.max_skill < 0) errors.Add("skill range invalid");
+            }
+
             return errors;
         }
     }

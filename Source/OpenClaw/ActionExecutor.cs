@@ -85,6 +85,14 @@ namespace OpenClaw
                     {
                         SetBillRepeatMode(item);
                     }
+                    else if (item.action == "set_bill_target")
+                    {
+                        SetBillTarget(item);
+                    }
+                    else if (item.action == "set_bill_skill_range")
+                    {
+                        SetBillSkillRange(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -179,6 +187,21 @@ namespace OpenClaw
             {
                 bill.repeatMode = BillRepeatModeDefOf.TargetCount;
             }
+        }
+
+        private static void SetBillTarget(ActionItem item)
+        {
+            var bill = FindBill(item);
+            if (bill == null) return;
+            bill.repeatMode = BillRepeatModeDefOf.TargetCount;
+            bill.targetCount = item.target;
+        }
+
+        private static void SetBillSkillRange(ActionItem item)
+        {
+            var bill = FindBill(item);
+            if (bill == null) return;
+            bill.allowedSkillRange = new FloatRange(item.min_skill, item.max_skill);
         }
 
         private static Bill FindBill(ActionItem item)
