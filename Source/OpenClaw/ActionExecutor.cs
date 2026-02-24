@@ -44,7 +44,9 @@ namespace OpenClaw
                     result.status = "error";
                     foreach (var e in errors)
                     {
-                        result.errors.Add(new ActionError { index = i, code = "validation_error", message = e });
+                        var err = new ActionError { index = i, code = "validation_error", message = e };
+                        result.errors.Add(err);
+                        OpenClawTerminalState.Add($"ERR[{i}] {err.code}: {err.message}");
                     }
                     ActionLimiter.RegisterError();
                     continue;
@@ -53,7 +55,9 @@ namespace OpenClaw
                 if (!ActionLimiter.AllowAction(out var limitError))
                 {
                     result.status = "error";
-                    result.errors.Add(new ActionError { index = i, code = "rate_limited", message = limitError });
+                    var err = new ActionError { index = i, code = "rate_limited", message = limitError };
+                    result.errors.Add(err);
+                    OpenClawTerminalState.Add($"ERR[{i}] {err.code}: {err.message}");
                     continue;
                 }
 
@@ -61,7 +65,9 @@ namespace OpenClaw
                 if (!ActionPolicy.AllowAction(item.action, key, out var policyError))
                 {
                     result.status = "error";
-                    result.errors.Add(new ActionError { index = i, code = "policy", message = policyError });
+                    var err = new ActionError { index = i, code = "policy", message = policyError };
+                    result.errors.Add(err);
+                    OpenClawTerminalState.Add($"ERR[{i}] {err.code}: {err.message}");
                     continue;
                 }
 
@@ -173,12 +179,18 @@ namespace OpenClaw
                 catch (System.Exception ex)
                 {
                     result.status = "error";
-                    result.errors.Add(new ActionError { index = i, code = "exception", message = ex.Message });
+                    var err = new ActionError { index = i, code = "exception", message = ex.Message };
+                    result.errors.Add(err);
+                    OpenClawTerminalState.Add($"ERR[{i}] {err.code}: {err.message}");
                     ActionLimiter.RegisterError();
                 }
             }
 
-            if (result.status == "ok") ActionLimiter.ClearErrors();
+            if (result.status == "ok")
+            {
+                OpenClawTerminalState.Add($"OK: {request.actions.Count} actions");
+                ActionLimiter.ClearErrors();
+            }
 
             return Serialize(result);
         }
