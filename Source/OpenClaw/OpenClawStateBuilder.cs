@@ -109,7 +109,6 @@ namespace OpenClaw
                 int components = CountThings(map, ThingDefOf.ComponentIndustrial);
                 int meals = CountThings(map, ThingDefOf.MealSimple)
                             + CountThings(map, ThingDefOf.MealFine)
-                            + CountThings(map, ThingDefOf.MealLavish)
                             + CountThings(map, ThingDefOf.MealSurvivalPack);
                 sb.Append("\"food\":").Append(food).Append(',')
                   .Append("\"medicine\":").Append(medicine).Append(',')

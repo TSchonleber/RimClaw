@@ -21,7 +21,7 @@ namespace OpenClaw
         public int count;
         public bool paused;
         public string repeat_mode;
-        public int target;
+        public int target_count;
         public int min_skill;
         public int max_skill;
         public string schedule;

@@ -4,11 +4,6 @@ namespace OpenClaw
 {
     public class Building_OpenClawTerminal : Building
     {
-        public override void SpawnSetup(Map map, bool respawningAfterLoad)
-        {
-            base.SpawnSetup(map, respawningAfterLoad);
-        }
-
         public override string GetInspectString()
         {
             return "OpenClaw terminal online.";

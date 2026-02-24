@@ -75,7 +75,7 @@ namespace OpenClaw
             {
                 if (string.IsNullOrWhiteSpace(item.table)) errors.Add("table missing");
                 if (string.IsNullOrWhiteSpace(item.recipe)) errors.Add("recipe missing");
-                if (item.target < 0) errors.Add("target invalid");
+                if (item.target_count < 0) errors.Add("target invalid");
             }
 
             if (item.action == "set_bill_skill_range")

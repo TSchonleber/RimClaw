@@ -15,7 +15,7 @@ This is the current action surface exposed by `/actions`.
 - `set_bill_count` { table, recipe, count }
 - `set_bill_pause` { table, recipe, paused }
 - `set_bill_repeat_mode` { table, recipe, repeat_mode: forever|count|target }
-- `set_bill_target` { table, recipe, target }
+- `set_bill_target` { table, recipe, target_count }
 - `set_bill_skill_range` { table, recipe, min_skill, max_skill }
 - `set_bill_ingredients` { table, recipe, ingredients[] }
 

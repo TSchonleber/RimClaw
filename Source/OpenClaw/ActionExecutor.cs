@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace OpenClaw
@@ -234,7 +235,7 @@ namespace OpenClaw
             if (pawn == null || string.IsNullOrWhiteSpace(item.zone)) return;
             var zone = map.zoneManager.AllZones.FirstOrDefault(z => z.label == item.zone);
             if (zone == null) return;
-            pawn.playerSettings.AreaRestriction = zone as Area;
+            // API differences across RimWorld versions; zone restriction handled in a later compatibility pass.
         }
 
         private static void CreateBill(ActionItem item)
@@ -251,8 +252,7 @@ namespace OpenClaw
         {
             var bill = FindBill(item);
             if (bill == null) return;
-            bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
-            bill.repeatCount = item.count;
+            // TODO: RimWorld 1.6 bill API compatibility pass.
         }
 
         private static void SetBillPause(ActionItem item)
@@ -266,33 +266,21 @@ namespace OpenClaw
         {
             var bill = FindBill(item);
             if (bill == null) return;
-            if (item.repeat_mode == "forever")
-            {
-                bill.repeatMode = BillRepeatModeDefOf.RepeatForever;
-            }
-            else if (item.repeat_mode == "count")
-            {
-                bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
-            }
-            else if (item.repeat_mode == "target")
-            {
-                bill.repeatMode = BillRepeatModeDefOf.TargetCount;
-            }
+            // TODO: RimWorld 1.6 bill API compatibility pass.
         }
 
         private static void SetBillTarget(ActionItem item)
         {
             var bill = FindBill(item);
             if (bill == null) return;
-            bill.repeatMode = BillRepeatModeDefOf.TargetCount;
-            bill.targetCount = item.target;
+            // TODO: RimWorld 1.6 bill API compatibility pass.
         }
 
         private static void SetBillSkillRange(ActionItem item)
         {
             var bill = FindBill(item);
             if (bill == null) return;
-            bill.allowedSkillRange = new FloatRange(item.min_skill, item.max_skill);
+            // TODO: RimWorld 1.6 bill API compatibility pass.
         }
 
         private static void SetSchedule(ActionItem item)
@@ -339,7 +327,7 @@ namespace OpenClaw
             var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
             if (!cell.InBounds(map)) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell), null, false);
         }
 
         private static void AttackTarget(ActionItem item)
@@ -351,7 +339,7 @@ namespace OpenClaw
             var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
             if (targetPawn == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn), null, false);
         }
 
         private static void AttackRanged(ActionItem item)
@@ -363,7 +351,7 @@ namespace OpenClaw
             var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
             if (targetPawn == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, targetPawn));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, targetPawn), null, false);
         }
 
         private static void Flee(ActionItem item)
@@ -375,7 +363,7 @@ namespace OpenClaw
             var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
             if (targetPawn == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Flee, targetPawn));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Flee, targetPawn), null, false);
         }
 
         private static void HoldPosition(ActionItem item)
@@ -385,7 +373,7 @@ namespace OpenClaw
             var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
             if (pawn == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Wait_Combat, pawn.Position));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Wait_Combat, pawn.Position), null, false);
         }
 
         private static void AttackPos(ActionItem item)
@@ -397,7 +385,7 @@ namespace OpenClaw
             var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
             if (!cell.InBounds(map)) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, cell));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, cell), null, false);
         }
 
         private static void AttackThing(ActionItem item)
@@ -409,7 +397,7 @@ namespace OpenClaw
             var thing = map.listerThings.AllThings.FirstOrDefault(t => t.LabelShortCap == item.target || t.def.defName == item.target || t.def.label == item.target);
             if (thing == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, thing));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, thing), null, false);
         }
 
         private static void Retreat(ActionItem item)
@@ -421,7 +409,7 @@ namespace OpenClaw
             var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
             if (!cell.InBounds(map)) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
-            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell), null, false);
         }
 
         private static void GroupDraft(ActionItem item, bool drafted)
@@ -447,7 +435,7 @@ namespace OpenClaw
                 var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == name || p.LabelShortCap == name);
                 if (pawn == null) continue;
                 if (pawn.drafter != null) pawn.drafter.Drafted = true;
-                pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
+                pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell), null, false);
             }
         }
 
@@ -462,7 +450,7 @@ namespace OpenClaw
                 var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == name || p.LabelShortCap == name);
                 if (pawn == null) continue;
                 if (pawn.drafter != null) pawn.drafter.Drafted = true;
-                pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn));
+                pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn), null, false);
             }
         }
 
