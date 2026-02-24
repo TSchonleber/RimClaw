@@ -42,6 +42,14 @@ namespace OpenClaw
                 {
                     result.status = "error";
                     result.errors.AddRange(errors);
+                    ActionLimiter.RegisterError();
+                    continue;
+                }
+
+                if (!ActionLimiter.AllowAction(out var limitError))
+                {
+                    result.status = "error";
+                    result.errors.Add(limitError);
                     continue;
                 }
 
@@ -154,8 +162,11 @@ namespace OpenClaw
                 {
                     result.status = "error";
                     result.errors.Add(ex.Message);
+                    ActionLimiter.RegisterError();
                 }
             }
+
+            if (result.status == "ok") ActionLimiter.ClearErrors();
 
             return Serialize(result);
         }
