@@ -129,6 +129,10 @@ namespace OpenClaw
                     {
                         AttackThing(item);
                     }
+                    else if (item.action == "retreat")
+                    {
+                        Retreat(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -355,6 +359,18 @@ namespace OpenClaw
             if (thing == null) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
             pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackStatic, thing));
+        }
+
+        private static void Retreat(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || item.target_pos == null || item.target_pos.Length < 3) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
+            if (!cell.InBounds(map)) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
         }
 
         private static Bill FindBill(ActionItem item)

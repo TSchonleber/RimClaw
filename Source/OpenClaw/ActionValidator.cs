@@ -139,6 +139,12 @@ namespace OpenClaw
                 if (string.IsNullOrWhiteSpace(item.target)) errors.Add("target missing");
             }
 
+            if (item.action == "retreat")
+            {
+                if (string.IsNullOrWhiteSpace(item.pawn)) errors.Add("pawn missing");
+                if (item.target_pos == null || item.target_pos.Length < 3) errors.Add("target_pos missing");
+            }
+
             return errors;
         }
     }
