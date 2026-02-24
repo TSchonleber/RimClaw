@@ -28,6 +28,7 @@ namespace OpenClaw
         public string[] ingredients;
         public int[] target_pos;
         public string target;
+        public string[] pawns;
     }
 
     public class ActionResult

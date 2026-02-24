@@ -133,6 +133,22 @@ namespace OpenClaw
                     {
                         Retreat(item);
                     }
+                    else if (item.action == "group_draft")
+                    {
+                        GroupDraft(item, true);
+                    }
+                    else if (item.action == "group_undraft")
+                    {
+                        GroupDraft(item, false);
+                    }
+                    else if (item.action == "group_move")
+                    {
+                        GroupMove(item);
+                    }
+                    else if (item.action == "group_attack")
+                    {
+                        GroupAttack(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -371,6 +387,48 @@ namespace OpenClaw
             if (!cell.InBounds(map)) return;
             if (pawn.drafter != null) pawn.drafter.Drafted = true;
             pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
+        }
+
+        private static void GroupDraft(ActionItem item, bool drafted)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || item.pawns == null) return;
+            foreach (var name in item.pawns)
+            {
+                var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == name || p.LabelShortCap == name);
+                if (pawn?.drafter == null) continue;
+                pawn.drafter.Drafted = drafted;
+            }
+        }
+
+        private static void GroupMove(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || item.pawns == null || item.target_pos == null || item.target_pos.Length < 3) return;
+            var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
+            if (!cell.InBounds(map)) return;
+            foreach (var name in item.pawns)
+            {
+                var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == name || p.LabelShortCap == name);
+                if (pawn == null) continue;
+                if (pawn.drafter != null) pawn.drafter.Drafted = true;
+                pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
+            }
+        }
+
+        private static void GroupAttack(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || item.pawns == null) return;
+            var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
+            if (targetPawn == null) return;
+            foreach (var name in item.pawns)
+            {
+                var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == name || p.LabelShortCap == name);
+                if (pawn == null) continue;
+                if (pawn.drafter != null) pawn.drafter.Drafted = true;
+                pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn));
+            }
         }
 
         private static Bill FindBill(ActionItem item)
