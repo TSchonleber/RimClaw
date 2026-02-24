@@ -101,6 +101,14 @@ namespace OpenClaw
                     {
                         SetBillIngredients(item);
                     }
+                    else if (item.action == "move_to")
+                    {
+                        MoveTo(item);
+                    }
+                    else if (item.action == "attack")
+                    {
+                        AttackTarget(item);
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -245,6 +253,30 @@ namespace OpenClaw
                     bill.ingredientFilter.SetAllow(def, true);
                 }
             }
+        }
+
+        private static void MoveTo(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null || item.target_pos == null || item.target_pos.Length < 3) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var cell = new IntVec3(item.target_pos[0], item.target_pos[1], item.target_pos[2]);
+            if (!cell.InBounds(map)) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, cell));
+        }
+
+        private static void AttackTarget(ActionItem item)
+        {
+            var map = Find.CurrentMap;
+            if (map == null) return;
+            var pawn = map.mapPawns.FreeColonists.FirstOrDefault(p => p.Name?.ToStringShort == item.pawn || p.LabelShortCap == item.pawn);
+            if (pawn == null) return;
+            var targetPawn = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.LabelShortCap == item.target || p.Name?.ToStringShort == item.target);
+            if (targetPawn == null) return;
+            if (pawn.drafter != null) pawn.drafter.Drafted = true;
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.AttackMelee, targetPawn));
         }
 
         private static Bill FindBill(ActionItem item)
