@@ -66,6 +66,10 @@ namespace OpenClaw
                       .Append("\"mood\":").Append(mood.ToString("0.00")).Append(',')
                       .Append("\"health\":").Append(health.ToString("0.00")).Append(',')
                       .Append("\"work\":\"").Append(GetPrimaryWorkType(pawn)).Append("\",")
+                      .Append("\"skills\":{")
+                      .Append(BuildSkills(pawn)).Append("},")
+                      .Append("\"traits\":[").Append(BuildTraits(pawn)).Append("],")
+                      .Append("\"injuries\":[").Append(BuildInjuries(pawn)).Append("],")
                       .Append("\"needs\":{")
                       .Append("\"food\":").Append(GetNeed(pawn, "Food").ToString("0.00")).Append(',')
                       .Append("\"rest\":").Append(GetNeed(pawn, "Rest").ToString("0.00")).Append(',')
@@ -223,6 +227,48 @@ namespace OpenClaw
         {
             var need = pawn?.needs?.AllNeeds?.FirstOrDefault(n => n.def?.defName == needDefName);
             return need?.CurLevel ?? 0f;
+        }
+
+        private static string BuildSkills(Pawn pawn)
+        {
+            if (pawn?.skills == null) return "";
+            var sb = new StringBuilder();
+            var skills = pawn.skills.skills;
+            for (int i = 0; i < skills.Count; i++)
+            {
+                var skill = skills[i];
+                sb.Append("\"").Append(skill.def?.defName).Append("\":").Append(skill.Level);
+                if (i < skills.Count - 1) sb.Append(',');
+            }
+            return sb.ToString();
+        }
+
+        private static string BuildTraits(Pawn pawn)
+        {
+            if (pawn?.story?.traits == null) return "";
+            var traits = pawn.story.traits.allTraits;
+            var sb = new StringBuilder();
+            for (int i = 0; i < traits.Count; i++)
+            {
+                var trait = traits[i];
+                sb.Append("\"").Append(trait.def?.defName).Append("\"");
+                if (i < traits.Count - 1) sb.Append(',');
+            }
+            return sb.ToString();
+        }
+
+        private static string BuildInjuries(Pawn pawn)
+        {
+            if (pawn?.health?.hediffSet == null) return "";
+            var injuries = pawn.health.hediffSet.hediffs.Where(h => h.Visible && h.Severity > 0f).ToList();
+            var sb = new StringBuilder();
+            for (int i = 0; i < injuries.Count; i++)
+            {
+                var injury = injuries[i];
+                sb.Append("\"").Append(injury.def?.defName).Append(":").Append(injury.Severity.ToString("0.00")).Append("\"");
+                if (i < injuries.Count - 1) sb.Append(',');
+            }
+            return sb.ToString();
         }
     }
 }
